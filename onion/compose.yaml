@@ -1,0 +1,26 @@
+services:
+  tor-web:
+    image: docker.io/library/debian:stable-slim
+    container_name: tor-web
+    restart: always
+    command: >
+      sh -c "apt-get update && apt-get install -y tor nginx &&
+             mkdir -p /var/lib/tor/hidden_service &&
+             chown -R debian-tor:debian-tor /var/lib/tor &&
+             chmod 700 /var/lib/tor/hidden_service &&
+             echo 'Log notice stdout' > /etc/tor/torrc &&
+             echo 'DataDirectory /var/lib/tor' >> /etc/tor/torrc &&
+             echo 'HiddenServiceDir /var/lib/tor/hidden_service/' >> /etc/tor/torrc &&
+             echo 'HiddenServicePort 80 127.0.0.1:80' >> /etc/tor/torrc &&
+             echo 'server { listen 80; root /data/www; index index.html; }' > /etc/nginx/sites-available/default &&
+             nginx &&
+             exec runuser -u debian-tor -- tor -f /etc/tor/torrc"
+    volumes:
+      - /data/projects/onion/nginx/html:/data/www:ro
+      - /data/projects/onion/tor/hs_data:/var/lib/tor/hidden_service:rw,Z
+    networks:
+      - onion-network
+
+networks:
+  onion-network:
+    driver: bridge
