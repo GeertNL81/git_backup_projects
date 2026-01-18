@@ -48,8 +48,10 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 - **Manage VM:** `virsh --connect qemu:///session {start|stop|destroy} Garuda`
 
 ## Status & Troubleshooting (Updated 2026-01-18)
-- **Garuda VM Creation:** Created a new VM named "Garuda" using the ISO in `Downloads`. Configured with user-mode networking and VNC on port 5900.
-- **NoVNC Restoration:** Restored the `novnc` container to bridge the Garuda VM VNC display to the web portal at `/desktop/`.
+- **Garuda VNC fix:** Successfully resolved the "Loading" and "JavaScript Error" issues. 
+    - **Solution:** Switched to the lightweight `vnc_lite.html` interface.
+    - **WebSocket Path:** Configured the connection URL with `path=desktop` to match Traefik prefix stripping.
+    - **Backend IP:** Pointed the bridge to the explicit host gateway `169.254.1.2:5900`.
 - **btop fix:** Enabled passwordless SSH and increased dashboard tile height to 800px.
 - **n8n fix:** Removed Traefik auth from n8n route to avoid login loops.
 - **ForwardAuth fix:** Switched to container hostname `http://project-x-web:3000` for stability.
