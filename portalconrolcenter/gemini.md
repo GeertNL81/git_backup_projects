@@ -4,7 +4,7 @@ This document summarizes the final working state of the Project X Homelab Portal
 
 ## Project Overview
 A **Homelab Management Portal** built with **Next.js 16 (App Router)** and **Tailwind CSS**. 
-The portal centralizes access to host services like **Web SSH**, **Cockpit**, and **n8n**, exposing them securely to the internet via **Tailscale Funnel**.
+The portal centralizes access to host services like **Web SSH**, **Cockpit**, **n8n**, and **File Management**, exposing them securely to the internet via **Tailscale Funnel**.
 
 ## Infrastructure & Environment
 - **Host OS:** Linux (Fedora/similar)
@@ -15,7 +15,7 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
   - **SSL Termination:** Handled by Tailscale Funnel; traffic reaches the host as unencrypted HTTP on port 80.
   - **Reverse Proxy:** Traefik v3 (`traefik-infra`).
 - **Security (Hardened):** 
-  - **Global SSO:** All services (Dashboard, SSH, n8n, Garuda VM) are protected by **ForwardAuth**.
+  - **Global SSO:** All services (Dashboard, SSH, n8n, Garuda VM, Files) are protected by **ForwardAuth**.
   - **Identity:** Restricted to single authorized user (`g.j.silkens@hotmail.com`).
   - **Multi-Factor:** **2FA (TOTP)** enabled and required for all web logins.
   - **Internal SSH:** Passwordless ED25519 keys for container-to-host access.
@@ -26,6 +26,7 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 3.  **Dashboard (Portal):** `project-x-web` (Custom Next.js app)
 4.  **n8n (Automation):** `project-x-n8n`
 5.  **NoVNC Bridge:** `project-x-novnc` (Connects to Garuda VM VNC)
+6.  **File Manager:** `project-x-filemanager` (FileBrowser)
 
 ## Virtual Machines (managed via virsh)
 1.  **Garuda:** 
@@ -41,6 +42,8 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 
 ## Key Files & Paths
 - **Project Root:** `/data/Podman/project-x`
+- **Host Storage:** `/data/storage` (Managed via File Manager)
+- **VM Storage:** `/data/vdi/`
 - **Traefik Dynamic Config:** `/data/Podman/traefik/dynamic/`
 - **SSH Keys:** `/data/Podman/project-x/ssh_keys/` (Mounted into web container)
 - **Compose Config:** `/data/Podman/project-x/docker-compose.yml`
@@ -51,6 +54,7 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 
 ## Status & Troubleshooting (Updated 2026-01-18)
 - **Security Hardening:** Switched from Basic Auth to **Global SSO with 2FA**. Users now log in once via the Next.js portal to unlock all services.
+- **File Manager Added:** Deployed FileBrowser at `/files/` to manage `/data/storage`. Integrated into Global SSO.
 - **Garuda VNC fix:** Resolved "Loading" hang by switching to `vnc_lite.html` and aligning WebSocket paths (`path=desktop`).
 - **btop fix:** Enabled passwordless SSH and increased dashboard tile height to 800px.
 - **n8n fix:** Integrated n8n into the Global SSO (ForwardAuth) while removing redundant authentication prompts.
