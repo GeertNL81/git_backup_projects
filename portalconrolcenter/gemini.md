@@ -14,13 +14,15 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
   - **Public Access:** `https://homelab.tail7529d7.ts.net/` via Tailscale Funnel.
   - **SSL Termination:** Handled by Tailscale Funnel; traffic reaches the host as unencrypted HTTP on port 80.
   - **Reverse Proxy:** Traefik v3 (`traefik-infra`).
-- **Security:** 
-  - **Global Dashboard:** Basic Authentication (User: `geert`, Password: `ResetRoot`).
+- **Security (Hardened):** 
+  - **Global SSO:** All services (Dashboard, SSH, n8n, Garuda VM) are protected by **ForwardAuth**.
+  - **Identity:** Restricted to single authorized user (`g.j.silkens@hotmail.com`).
+  - **Multi-Factor:** **2FA (TOTP)** enabled and required for all web logins.
   - **Internal SSH:** Passwordless ED25519 keys for container-to-host access.
 
 ## Infrastructure Services (managed via podman-compose)
 1.  **Traefik Proxy:** `traefik-infra`
-2.  **Database:** `project-x-db`
+2.  **Database:** `project-x-db` (Postgres 16)
 3.  **Dashboard (Portal):** `project-x-web` (Custom Next.js app)
 4.  **n8n (Automation):** `project-x-n8n`
 5.  **NoVNC Bridge:** `project-x-novnc` (Connects to Garuda VM VNC)
@@ -39,7 +41,7 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 
 ## Key Files & Paths
 - **Project Root:** `/data/Podman/project-x`
-- **VM Storage:** `/data/vdi/`
+- **Traefik Dynamic Config:** `/data/Podman/traefik/dynamic/`
 - **SSH Keys:** `/data/Podman/project-x/ssh_keys/` (Mounted into web container)
 - **Compose Config:** `/data/Podman/project-x/docker-compose.yml`
 
@@ -48,10 +50,8 @@ The portal centralizes access to host services like **Web SSH**, **Cockpit**, an
 - **Manage VM:** `virsh --connect qemu:///session {start|stop|destroy} Garuda`
 
 ## Status & Troubleshooting (Updated 2026-01-18)
-- **Garuda VNC fix:** Successfully resolved the "Loading" and "JavaScript Error" issues. 
-    - **Solution:** Switched to the lightweight `vnc_lite.html` interface.
-    - **WebSocket Path:** Configured the connection URL with `path=desktop` to match Traefik prefix stripping.
-    - **Backend IP:** Pointed the bridge to the explicit host gateway `169.254.1.2:5900`.
+- **Security Hardening:** Switched from Basic Auth to **Global SSO with 2FA**. Users now log in once via the Next.js portal to unlock all services.
+- **Garuda VNC fix:** Resolved "Loading" hang by switching to `vnc_lite.html` and aligning WebSocket paths (`path=desktop`).
 - **btop fix:** Enabled passwordless SSH and increased dashboard tile height to 800px.
-- **n8n fix:** Removed Traefik auth from n8n route to avoid login loops.
-- **ForwardAuth fix:** Switched to container hostname `http://project-x-web:3000` for stability.
+- **n8n fix:** Integrated n8n into the Global SSO (ForwardAuth) while removing redundant authentication prompts.
+- **ForwardAuth fix:** Switched `auth.yml` to use the container hostname `http://project-x-web:3000` for permanent stability.
