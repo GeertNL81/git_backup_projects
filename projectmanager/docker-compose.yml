@@ -40,9 +40,9 @@ x-app-env: &app-env
 
 services:
   plane-web:
-    image: makeplane/plane-frontend:stable
+    image: docker.io/makeplane/plane-frontend:stable
     container_name: plane-web
-    restart: unless-stopped
+    restart: always
     command: node web/server.js web
     environment:
       <<: *app-env
@@ -51,9 +51,9 @@ services:
       - plane-worker
 
   plane-space:
-    image: makeplane/plane-space:stable
+    image: docker.io/makeplane/plane-space:stable
     container_name: plane-space
-    restart: unless-stopped
+    restart: always
     command: node space/server.js space
     environment:
       <<: *app-env
@@ -63,9 +63,9 @@ services:
       - plane-web
 
   plane-admin:
-    image: makeplane/plane-admin:stable
+    image: docker.io/makeplane/plane-admin:stable
     container_name: plane-admin
-    restart: unless-stopped
+    restart: always
     command: node admin/server.js admin
     environment:
       <<: *app-env
@@ -74,9 +74,9 @@ services:
       - plane-web
 
   plane-live:
-    image: makeplane/plane-live:stable
+    image: docker.io/makeplane/plane-live:stable
     container_name: plane-live
-    restart: unless-stopped
+    restart: always
     command: node live/server.js live
     environment:
       <<: *app-env
@@ -85,9 +85,9 @@ services:
       - plane-web
 
   plane-api:
-    image: makeplane/plane-backend:stable
+    image: docker.io/makeplane/plane-backend:stable
     container_name: plane-api
-    restart: unless-stopped
+    restart: always
     command: ./bin/api
     environment:
       <<: *app-env
@@ -97,9 +97,9 @@ services:
       - plane-minio
 
   plane-worker:
-    image: makeplane/plane-backend:stable
+    image: docker.io/makeplane/plane-backend:stable
     container_name: plane-worker
-    restart: unless-stopped
+    restart: always
     command: ./bin/worker
     environment:
       <<: *app-env
@@ -109,9 +109,9 @@ services:
       - plane-redis
 
   plane-beat-worker:
-    image: makeplane/plane-backend:stable
+    image: docker.io/makeplane/plane-backend:stable
     container_name: plane-beat-worker
-    restart: unless-stopped
+    restart: always
     command: ./bin/beat
     environment:
       <<: *app-env
@@ -121,7 +121,7 @@ services:
       - plane-redis
 
   plane-migrator:
-    image: makeplane/plane-backend:stable
+    image: docker.io/makeplane/plane-backend:stable
     container_name: plane-migrator
     restart: "no"
     command: ./bin/migrate
@@ -132,9 +132,9 @@ services:
       - plane-redis
 
   plane-db:
-    image: postgres:15-alpine
+    image: docker.io/postgres:15-alpine
     container_name: plane-db
-    restart: unless-stopped
+    restart: always
     command: postgres -c 'max_connections=1000'
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-plane}
@@ -150,9 +150,9 @@ services:
       retries: 5
 
   plane-redis:
-    image: redis:7-alpine
+    image: docker.io/redis:7-alpine
     container_name: plane-redis
-    restart: unless-stopped
+    restart: always
     volumes:
       - redisdata:/data
     healthcheck:
@@ -162,9 +162,9 @@ services:
       retries: 5
 
   plane-minio:
-    image: minio/minio:latest
+    image: docker.io/minio/minio:latest
     container_name: plane-minio
-    restart: unless-stopped
+    restart: always
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-plane}
@@ -178,7 +178,7 @@ services:
       retries: 5
 
   plane-minio-init:
-    image: minio/mc:latest
+    image: docker.io/minio/mc:latest
     container_name: plane-minio-init
     depends_on:
       plane-minio:
@@ -192,9 +192,9 @@ services:
       "
 
   plane-proxy:
-    image: makeplane/plane-proxy:stable
+    image: docker.io/makeplane/plane-proxy:stable
     container_name: plane-proxy
-    restart: unless-stopped
+    restart: always
     ports:
       - "${NGINX_PORT:-80}:80"
     environment:
