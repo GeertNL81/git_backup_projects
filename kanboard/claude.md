@@ -1,6 +1,6 @@
-# The Plane
+# Kanboard Documentation
 
 ## Project Information
 
-This is a new project directory.
+This directory contains documentation and resources related to the Kanboard project management deployment.
 
